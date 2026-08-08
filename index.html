@@ -1,0 +1,1134 @@
+<!doctype html>
+<html lang="ar" dir="rtl">
+<head>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/hammer.js/2.0.8/hammer.min.js"></script>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,maximum-scale=1,user-scalable=no,viewport-fit=cover">
+<meta name="theme-color" content="#04030a">
+<title>For Maroomy — from Zozah ♡</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Alexandria:wght@400;500;600;700;800&family=Playfair+Display:ital,wght@0,600;0,700;1,600&family=Great+Vibes&display=swap" rel="stylesheet">
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.7/gsap.min.js"></script>
+
+<style>
+:root{
+  --bg:#04030a; --bg2:#080610; --pink:#ff5b9a; --pink2:#ff9fc0;
+  --paper:#fcf8f4; --paper2:#f3e8de; --ink:#3d292d; --muted:#8b777b;
+  
+  --english-font: "Playfair Display", Georgia, serif;
+  --hand: "Great Vibes", cursive;
+  --cairo: "Alexandria", sans-serif;
+}
+
+body {
+  font-family: var(--cairo);
+  font-weight: 700;
+  background: var(--bg);
+  color: #fff;
+  margin:0; padding:0; overflow-x:hidden; height:100%;
+}
+
+*{box-sizing:border-box;-webkit-user-select:none!important;user-select:none!important;-webkit-touch-callout:none!important}
+html,body{height:100%}
+button,input,textarea,p,span,h1,h2,h3,h4,h5,h6,div{font-family:var(--cairo);-webkit-tap-highlight-color:transparent}
+img{-webkit-user-drag:none;user-drag:none}
+section{position:relative;min-height:100svh;overflow:hidden}
+.hidden{display:none!important}
+
+/* BACKGROUND HEARTS */
+#floatingHeartsCanvas{
+  position:fixed;inset:0;width:100vw;height:100vh;
+  pointer-events:none;z-index:1;opacity:.85;
+}
+
+/* PASSWORD GATE */
+#passwordGate{
+  position:fixed;inset:0;z-index:99999;display:grid;place-items:center;
+  overflow:hidden;background:
+  radial-gradient(circle at 50% 42%,rgba(255,91,148,.22),transparent 45%),
+  radial-gradient(circle at 20% 80%,rgba(150,110,255,.15),transparent 40%),
+  #05040a;color:#f8edf2;
+  transition:opacity .8s ease,visibility .8s ease;
+}
+#passwordGate.unlocked{opacity:0;visibility:hidden;pointer-events:none}
+.gateGlow{position:absolute;inset:-30%;
+  background:radial-gradient(circle,rgba(255,110,160,.15),transparent 40%);
+  animation:gateFloat 7s ease-in-out infinite alternate}
+@keyframes gateFloat{to{transform:translate(4%, -3%) scale(1.08)}}
+.gateCard{position:relative;width:min(420px,88vw);padding:48px 38px 38px;
+  border:1px solid rgba(255,255,255,.18);border-radius:24px;
+  background:linear-gradient(145deg,rgba(25,19,29,.92),rgba(10,9,14,.96));
+  box-shadow:0 35px 100px rgba(0,0,0,.8), 0 0 40px rgba(255,91,148,.25);
+  backdrop-filter:blur(20px);text-align:center}
+.gateMini{font:600 11px var(--cairo);letter-spacing:.28em;opacity:.6;color:#ffb0ca}
+.gateHeart{font-size:58px;line-height:1;margin:13px 0 5px;color:#ff8eaf;
+  text-shadow:0 0 30px rgba(255,91,145,.8);animation:heartPulse 1.8s ease-in-out infinite}
+@keyframes heartPulse{0%,100%{transform:scale(1)}50%{transform:scale(1.12)}}
+.gateCard h1{font:600 28px var(--cairo);margin:4px 0 6px}
+.gateCard p{font-size:13px;opacity:.7;margin:0 0 24px;font-family:var(--cairo)}
+.passwordWrap{display:flex;align-items:center;border:1px solid rgba(255,255,255,.2);
+  background:rgba(255,255,255,.06);border-radius:12px;overflow:hidden;
+  transition:border-color .25s,box-shadow .25s}
+.passwordWrap:focus-within{border-color:rgba(255,130,166,.8);box-shadow:0 0 15px rgba(255,100,150,.3)}
+.passwordWrap input{flex:1;border:0;outline:0;background:transparent;color:white;padding:14px 15px;
+  font-size:15px;min-width:0;direction:ltr;text-align:center;font-family:var(--cairo)}
+#togglePassword{width:45px;height:45px;border:0;background:transparent;color:#c6aeb8;cursor:pointer}
+.unlockBtn{width:100%;margin-top:14px;border:0;border-radius:12px;padding:14px 18px;
+  background:linear-gradient(135deg,#ff6b9d,#c85881);color:white;cursor:pointer;
+  font:700 14px var(--cairo);box-shadow:0 10px 25px rgba(200,88,129,.4);
+  transition:transform .25s,filter .25s}
+.unlockBtn:hover{transform:translateY(-2px);filter:brightness(1.1)}
+#passwordError{height:18px;margin-top:10px;color:#ff91ad;font-size:12px;opacity:0;transform:translateY(-4px);transition:.25s;font-family:var(--cairo)}
+#passwordError.show{opacity:1;transform:none}
+
+/* COUNTDOWN OVERLAY */
+#countdownOverlay{
+  position:fixed;inset:0;z-index:90000;display:grid;place-items:center;
+  background:radial-gradient(circle at 50% 50%,#1a0d24,#05040a 80%);
+  opacity:0;pointer-events:none;transition:opacity .5s ease;
+}
+#countdownOverlay.active{opacity:1;pointer-events:auto}
+.countContent{display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;width:100%;height:100%}
+.countNumber{
+  font:700 clamp(5rem,18vw,12rem)/1 var(--english-font);
+  color:#ff7cb0;text-shadow:0 0 50px rgba(255,90,150,.9);
+  transform:scale(0.3);opacity:0;
+}
+.birthdayBanner{display:none;flex-direction:column;align-items:center;justify-content:center;text-align:center;gap:10px}
+.birthdayBanner.show{display:flex}
+.birthdayBanner h1{
+  font-family: var(--english-font);
+  font-size: clamp(2rem, 5.5vw, 4.5rem);
+  font-weight: 700;
+  line-height: 1.3;
+  color: #ff9fc0;
+  text-shadow: 0 0 20px rgba(255, 91, 154, 0.6);
+  background: linear-gradient(135deg,#ffffff 0%,#ffb0ca 50%,#ff5b9a 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  -webkit-backface-visibility: hidden;
+  backface-visibility: hidden;
+  transform: translateZ(0);
+  margin: 0;
+  direction: ltr; text-align: center;
+}
+.birthdayBanner p{
+  font-family: var(--hand);
+  font-size: clamp(2.2rem, 6.5vw, 4.5rem);
+  color: #ffc2d6; margin: 0; text-shadow: 0 0 20px rgba(255,150,180,.6);
+}
+
+/* LOADING SECTION */
+#loading{display:grid;place-items:center;background:#020208;z-index:2}
+#matrix{position:absolute;inset:0;width:100%;height:100%;opacity:.7}
+.vignette{position:absolute;inset:0;background:radial-gradient(circle at 50% 48%,transparent 0 20%,rgba(0,0,0,.2) 55%,rgba(0,0,0,.8) 100%)}
+.loader{position:relative;z-index:2;text-align:center;width:min(650px,90vw)}
+.loader .overline{font-size:10px;letter-spacing:.42em;opacity:.5;direction:ltr;font-family:var(--cairo)}
+.loader .name{font:700 clamp(2.8rem,9vw,6.5rem)/1 var(--english-font);direction:ltr;margin:16px 0;text-shadow:0 0 25px rgba(255,91,148,.4)}
+.loader .name span{color:var(--pink);text-shadow:0 0 35px rgba(255,70,140,.8);font-family:var(--english-font)}
+.loading-copy{font-size:13px;opacity:.7;font-family:var(--cairo)}
+.progress{height:4px;background:rgba(255,255,255,.12);margin:27px auto;width:min(380px,75vw);border-radius:99px;overflow:hidden}
+.progress i{display:block;height:100%;width:0;background:linear-gradient(90deg,#ff4e91,#ffb0c9);box-shadow:0 0 14px #ff5b9a}
+.percent{font:12px monospace;letter-spacing:.15em;color:#ff9bbb;direction:ltr}
+.enter{margin-top:25px;padding:12px 28px;border:1px solid rgba(255,255,255,.25);background:rgba(255,255,255,.1);color:#fff;border-radius:999px;cursor:pointer;opacity:0;pointer-events:none;transition:.3s;font-size:14px;box-shadow:0 0 15px rgba(255,91,148,.2);font-family:var(--cairo)}
+.enter.ready{opacity:1;pointer-events:auto}
+.enter:hover{background:rgba(255,91,148,.3);border-color:rgba(255,91,148,.8);transform:translateY(-2px)}
+
+/* BOOK WORLD */
+#bookWorld{background:radial-gradient(circle at 50% 44%,#161328,#06060d 42%,#010107 100%);z-index:2}
+#stars{position:absolute;inset:0;width:100%;height:100%}
+.worldGlow{position:absolute;left:50%;top:45%;width:60vmin;height:60vmin;transform:translate(-50%,-50%);border-radius:50%;background:radial-gradient(circle,rgba(255,77,145,.15),transparent 65%);filter:blur(6px)}
+.worldTitle{position:absolute;top:2vh;left:50%;transform:translateX(-50%);z-index:4;text-align:center;white-space:nowrap;width:90vw}
+.worldTitle small{font-size:9px;letter-spacing:.25em;opacity:.6;direction:ltr;display:block;font-family:var(--cairo)}
+.worldTitle h1{font:700 clamp(1.4rem,3.5vw,3.2rem) var(--english-font);margin:2px 0 0;direction:ltr;text-shadow:0 4px 15px rgba(0,0,0,.6)}
+.worldTitle h1 span{font-family:var(--hand);font-size:1.2em;color:var(--pink2);font-weight:400}
+
+.notebookWrap{
+  position:absolute;inset:0;display:grid;place-items:center;
+  padding:8vh 2vw 6vh;perspective:2000px;z-index:3;
+}
+.notebook{
+  position:relative;width:min(1000px,96vw);height:min(580px,68vh);min-height:380px;
+  transform-style:preserve-3d;
+  filter:drop-shadow(0 25px 45px rgba(0,0,0,.75));
+  touch-action:none;
+}
+.bookBack{
+  position:absolute;inset:0 0 0 50%;background:linear-gradient(90deg,#c0b0a2,#ebdcd0);
+  border-radius:0 15px 15px 0;box-shadow:inset 0 0 0 1px rgba(60,40,30,.2);
+  z-index: 0;
+}
+.bookSpine{
+  position:absolute;left:50%;top:0;bottom:0;width:12px;transform:translateX(-50%);
+  z-index:1;background:linear-gradient(90deg,#9e8b7d,#fff5ec 50%,#9e8b7d);
+  box-shadow:0 0 10px rgba(0,0,0,.3);
+  pointer-events:none;
+}
+
+/* FLIP PAGE SYSTEM */
+.page{
+  position:absolute;top:0;right:0;width:50%;height:100%;
+  transform-origin:left center;
+  transform-style:preserve-3d;
+  border-radius:0 12px 12px 0;
+  box-shadow:-5px 0 15px rgba(0,0,0,.15);
+  transition: transform 0.8s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+.page .side{
+  position:absolute;inset:0;
+  backface-visibility:hidden;
+  -webkit-backface-visibility:hidden;
+  overflow:hidden;
+  padding: clamp(14px, 2.5vw, 36px) clamp(12px, 2.2vw, 30px) clamp(14px, 2.5vw, 36px) clamp(16px, 2.8vw, 35px);
+  background:var(--paper);color:var(--ink);
+  box-shadow: inset -10px 0 20px rgba(0,0,0,.04);
+}
+.page .side.front{ z-index:2; }
+.page .side.back{
+  transform:rotateY(180deg);
+  background:linear-gradient(135deg,var(--paper),var(--paper2));
+  z-index:1;
+}
+
+.paperTexture{position:absolute;inset:0;pointer-events:none;opacity:.35;
+  background:repeating-linear-gradient(0deg,transparent 0 29px,rgba(110,75,60,.05) 30px);
+}
+.eyebrow{font-size:10px;letter-spacing:.12em;text-transform:uppercase;color:#a56a7d;direction:ltr;font-family:var(--cairo);font-weight:700}
+
+.page h2{
+  font-family: var(--cairo);
+  font-weight: 800;
+  font-size: clamp(1.2rem, 2.4vw, 2.4rem);
+  line-height: 1.25;
+  margin: 4px 0 10px;
+  color: #3b2328;
+}
+
+.letter{
+  font-size: clamp(11px, 1.1vw, 15px);
+  line-height: 1.7;
+  position: relative;
+  z-index: 2;
+  font-family: var(--cairo);
+  font-weight: 600;
+}
+.signature{font:400 clamp(24px,3vw,36px) var(--hand);color:#bc5879;direction:ltr;margin-top:6px;text-shadow:0 2px 5px rgba(188,88,121,.15)}
+.pageNumber{position:absolute;bottom:8px;left:14px;font:600 11px var(--english-font);opacity:.4;direction:ltr}
+
+/* COVER */
+.cover{
+  position:absolute;top:0;right:0;width:50%;height:100%;
+  transform-origin:left center;
+  transform-style:preserve-3d;
+  border-radius:0 15px 15px 0;
+  overflow:hidden;
+  background:linear-gradient(135deg,#c4b3a4,#f2e5da 25%,#dbcac0);
+  box-shadow:inset 0 0 0 1px rgba(70,45,35,.2),0 15px 35px rgba(0,0,0,.4);
+  transition: transform 0.9s cubic-bezier(0.645, 0.045, 0.355, 1);
+}
+.cover:after{content:"";position:absolute;inset:12px;border:1px solid rgba(90,65,55,.18);border-radius:6px}
+.coverContent{height:100%;display:grid;place-items:center;text-align:center;position:relative;z-index:2;padding:10px}
+.coverText{color:#523e40}
+.coverText .arabic{font-size:12px;opacity:.8;font-family:var(--cairo);font-weight:800}
+.coverText h3{font:700 clamp(1.8rem,5vw,4.5rem) var(--english-font);margin:4px 0;direction:ltr;text-shadow:0 2px 10px rgba(0,0,0,.1)}
+.coverText .script{font:400 clamp(1.6rem,3.8vw,3.5rem) var(--hand);color:#ce6688}
+.coverHeart{font-size:32px;color:#f26992;margin-top:6px;filter:drop-shadow(0 6px 15px rgba(240,80,130,.3))}
+
+.openBtn{
+  position:absolute;z-index:500;bottom:15px;left:50%;transform:translateX(-50%);
+  padding:9px 20px;border:1px solid rgba(60,40,30,.25);background:rgba(255,255,255,.9);
+  color:#5a3f45;border-radius:999px;cursor:pointer;backdrop-filter:blur(8px);font-size:12px;
+  font-weight:700;box-shadow:0 8px 22px rgba(0,0,0,.15);transition:.25s;font-family:var(--cairo);
+}
+.openBtn:hover{background:#fff;transform:translateX(-50%) translateY(-2px);box-shadow:0 12px 28px rgba(0,0,0,.2)}
+
+/* PHOTO SPREAD FIX - إظهار الصورتين بجانب بعض بدقة ودون اختفاء */
+.photoSpread{
+  display:flex!important;
+  flex-direction:row!important;
+  justify-content:center!important;
+  align-items:stretch!important;
+  gap:10px!important;
+  width:100%!important;
+  height: clamp(140px, 55%, 260px)!important;
+  margin-top:8px!important;
+  position:relative;
+  z-index:2;
+}
+.polaroid{
+  flex:1!important;
+  display:flex!important;
+  flex-direction:column!important;
+  position:relative;
+  background:#fff;
+  padding:5px 5px 18px!important;
+  box-shadow:0 8px 18px rgba(50,30,25,.18);
+  border-radius:2px;
+  min-width:0!important;
+}
+.polaroid:nth-child(1){transform:rotate(-2deg)}
+.polaroid:nth-child(2){transform:rotate(2deg)}
+.polaroid img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  display:block;
+}
+.polaroid span{
+  position:absolute;
+  bottom:2px;
+  left:0;
+  right:0;
+  text-align:center;
+  font:400 clamp(11px,1.2vw,14px) var(--hand);
+  color:#6c4b51;
+  direction:ltr;
+  white-space:nowrap;
+  overflow:hidden;
+}
+.tinyHeart{font-size:14px;color:#cb607f;text-align:center;margin-top:6px;font-family:var(--cairo);font-weight:700}
+
+/* COUNTER SPREAD */
+.counterSpread{text-align:center}
+.counterGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:6px;margin:10px 0}
+.timeBox{border:1px solid rgba(70,45,35,.15);background:rgba(255,255,255,.5);padding:6px 2px;border-radius:8px;box-shadow:0 4px 10px rgba(0,0,0,.03)}
+.timeBox b{display:block;font:700 clamp(16px,2vw,24px) var(--english-font);direction:ltr;color:#4a3237}
+.timeBox span{display:block;font-size:8px;letter-spacing:.1em;opacity:.7;direction:ltr;font-family:var(--cairo)}
+.centerScript{text-align:center;font:400 clamp(20px,2.5vw,30px) var(--hand);color:#a75c75;margin-top:6px}
+
+/* CHAPTER NEXT BUTTON */
+.chapterNext{
+  position:relative!important;left:auto!important;right:auto!important;
+  bottom:auto!important;transform:none!important;margin:12px auto 0!important;
+  z-index:500!important;display:inline-flex!important;align-items:center!important;
+  justify-content:center!important;gap:6px!important;min-width:120px!important;
+  height:36px!important;padding:0 16px!important;
+  border:1px solid rgba(156,102,113,.4)!important;border-radius:999px!important;
+  background:rgba(255,255,255,.85)!important;color:#5a3942!important;
+  font-size:12px!important;font-weight:700!important;
+  box-shadow:0 8px 25px rgba(90,52,58,.15)!important;cursor:pointer!important;
+  transition:all .25s ease!important;font-family:var(--cairo)!important;
+}
+
+/* TURN HINT & NAV */
+#turnHint{
+  position:relative;z-index:120;margin:4px auto 0;
+  display:flex;align-items:center;justify-content:center;gap:8px;
+  color:rgba(255,230,238,.9);direction:rtl;pointer-events:none;
+  animation:hintFloat 2.2s ease-in-out infinite;
+  opacity: 0; transition: opacity 0.3s ease;
+}
+.turnHintText{font:700 15px var(--cairo);text-shadow:0 2px 10px rgba(0,0,0,.6)}
+.turnHintArrow{font-size:18px;color:#ff9bb8}
+.turnHintArrow.right{transform:scaleX(-1)}
+@keyframes hintFloat{0%,100%{transform:translateY(0)}50%{transform:translateY(4px)}}
+
+.pageNav{position:relative;z-index:100;display:flex;justify-content:center;gap:10px;margin-top:4px}
+.pageNav button{border:1px solid rgba(255,255,255,.18);background:rgba(255,255,255,.1);
+  color:#eee;padding:6px 14px;border-radius:999px;cursor:pointer;transition:.25s;font-size:12px;font-weight:600;font-family:var(--cairo)}
+
+/* HEART MOSAIC SCENE */
+#heartScene{
+  display:none;min-height:100svh;width:100%;position:relative;
+  overflow:hidden;z-index:2;
+  background:
+    radial-gradient(circle at 50% 45%,rgba(255,73,143,.2),transparent 45%),
+    radial-gradient(circle at 50% 50%,#120818 0,#05050b 60%,#010107 100%);
+}
+.mosaicTitle{
+  position:absolute;top:3vh;left:50%;transform:translateX(-50%);
+  text-align:center;z-index:10;width:min(92%, 650px);
+}
+.mosaicTitle .ey{font-size:9px;letter-spacing:.25em;opacity:.6;direction:ltr;color:#ffb0ca;font-family:var(--cairo)}
+.mosaicTitle h2{font:700 clamp(1.4rem,3.8vw,3.6rem) var(--english-font);margin:2px 0;direction:ltr;text-shadow:0 4px 15px rgba(0,0,0,.5)}
+.mosaicTitle p{margin:0;color:#c2b5bc;font-size:11px;font-family:var(--cairo);font-weight:600}
+
+.mosaicStage{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;z-index:2}
+.mosaic{position:relative;width:min(680px,94vw);height:min(520px,52vh);pointer-events:auto;margin-top:2vh}
+.tile{
+  position:absolute;left:50%;top:50%;width:22px;height:28px;padding:1.5px;background:#fff;border-radius:3px;
+  box-shadow:0 4px 12px rgba(0,0,0,.5),0 0 10px rgba(255,91,148,.25);
+  overflow:hidden;opacity:0;transform:translate(-50%,-50%) scale(.2) rotate(0deg);
+  will-change: transform, opacity;
+}
+.tile img{width:100%;height:100%;object-fit:cover;display:block}
+
+.mosaicCaption{
+  position:absolute;bottom:2vh;left:50%;transform:translateX(-50%);
+  z-index:10;text-align:center;opacity:0;width:min(92%, 600px);
+}
+.mosaicCaption h3{font:700 clamp(1.6rem,4vw,3.8rem) var(--english-font);margin:0;direction:ltr}
+.mosaicCaption h3 span{color:var(--pink2)}
+.mosaicCaption p{margin:4px 0 0;color:#c2b5bc;font-size:12px;font-family:var(--cairo)}
+
+#backToBook{
+  position:absolute;left:12px;top:12px;z-index:20;
+  border:1px solid rgba(255,255,255,.2);background:rgba(8,6,12,.7);
+  color:rgba(255,255,255,.9);padding:6px 12px;border-radius:999px;
+  backdrop-filter:blur(10px);cursor:pointer;font-size:11px;transition:.25s;font-family:var(--cairo);
+}
+
+/* FINAL SCENE */
+#finalScene{
+  display:none;min-height:100svh;position:relative;overflow:hidden;z-index:2;
+  background:
+    radial-gradient(circle at 50% 50%,rgba(255,83,145,.18),transparent 40%),
+    radial-gradient(circle at 50% 0%,#180e22,#05050b 60%,#010107);
+  place-items:center;padding:3vh 3vw;text-align:center;
+  align-content:center;
+}
+.finalEyebrow{position:relative;z-index:2;font-size:10px;letter-spacing:.25em;opacity:.7;direction:ltr;color:#ffb0ca;font-family:var(--cairo);font-weight:700}
+.finalTitle{position:relative;z-index:2;font:800 clamp(1.2rem,3.2vw,2.8rem) var(--cairo);margin:4px 0 20px;text-shadow:0 4px 20px rgba(0,0,0,.5)}
+.finalTitle span{color:var(--pink2);font-weight:800}
+
+.thenNow{
+  direction:ltr!important;position:relative;z-index:2;width:min(900px,96vw);
+  display:grid;grid-template-columns:1fr 140px 1fr;align-items:center;justify-items:center;gap:15px;
+  margin:0 auto;
+}
+.finalPhoto{
+  position:relative;
+  z-index:1;
+  background:#fff;
+  padding:6px 6px 24px;
+  margin:0;
+  box-shadow:0 15px 40px rgba(0,0,0,.6);
+  border-radius:6px;
+  opacity:0;
+  width:100%;
+  max-width:280px;
+}
+.finalPhoto img{width:100%;height:min(35vh,280px);object-fit:cover;display:block;border-radius:3px}
+.finalPhoto figcaption{color:#4e3a3f;font:400 18px var(--hand);margin-top:4px;direction:ltr;text-align:center}
+.childPhoto{transform:rotate(-2.5deg)}
+.nowPhoto{transform:rotate(2.5deg)}
+
+.growthArrow{
+  position:relative;
+  z-index:10;
+  display:flex;
+  flex-direction:column;
+  align-items:center;
+  justify-content:center;
+  opacity:0;
+  color:#ff8eaf;
+  direction:ltr!important;
+  width:100%;
+}
+.arrowLine{width:80px;height:2px;background:linear-gradient(90deg,transparent,#ff739f,transparent);box-shadow:0 0 12px rgba(255,90,145,.7)}
+.arrowHead{font-size:26px;line-height:.5;margin-top:-5px;filter:drop-shadow(0 0 9px rgba(255,90,145,.65))}
+.growthText{font:700 20px var(--cairo);white-space:nowrap;margin-top:8px;direction:rtl;color:#ffb0ca;text-shadow:0 0 10px rgba(255,91,148,.5)}
+
+.finalWords{position:relative;z-index:2;margin-top:20px;opacity:0;text-align:center}
+.finalScript{font:400 clamp(1.5rem,3.5vw,2.8rem) var(--hand);color:#ff9fbd;direction:ltr;text-shadow:0 0 15px rgba(255,100,150,.4)}
+.finalWords p{margin:4px 0 0;color:#c2b5bc;font-size:13px;font-family:var(--cairo);font-weight:600}
+.seventeen{margin-top:6px;font-size:15px;font-weight:800;color:#ff8eaf;font-family:var(--cairo)}
+
+.restartBtn{
+  margin-top:16px;padding:10px 24px;
+  border:1px solid rgba(255,180,205,.5);
+  background:linear-gradient(135deg,rgba(255,91,154,.3),rgba(200,88,129,.2));
+  color:#fff;border-radius:999px;cursor:pointer;
+  font-size:13px;font-weight:700;box-shadow:0 8px 25px rgba(255,91,148,.25);
+  transition:all .3s ease;font-family:var(--cairo);backdrop-filter:blur(8px);
+}
+
+@media(max-width:700px){
+  .notebook{width:98vw;height:62vh;min-height:360px}
+  .page .side{padding: 12px 10px 12px 14px;}
+  .counterGrid{gap:4px;grid-template-columns:repeat(4,1fr)}.timeBox b{font-size:15px}
+  .mosaic{width:96vw;height:48vh}
+  
+  .thenNow{
+    grid-template-columns:1fr;
+    gap:10px;
+    width:min(280px,90vw);
+  }
+  .finalPhoto{max-width:240px}
+  .finalPhoto img{height:20vh}
+  .growthArrow{
+    flex-direction:row;
+    gap:10px;
+    height:auto;
+    margin:4px 0;
+  }
+  .arrowLine{width:40px}
+  .growthText{margin-top:0}
+  .tile{width:18px;height:24px}
+}
+</style>
+</head>
+<body>
+
+<canvas id="floatingHeartsCanvas"></canvas>
+
+<audio id="giftSong" preload="auto" loop src="assets/heseeny.mp3"></audio>
+
+<section id="passwordGate">
+  <div class="gateGlow"></div>
+  <div class="gateCard">
+    <div class="gateMini">A LITTLE SOMETHING FOR YOU</div>
+    <div class="gateHeart">♡</div>
+    <h1>اكتبي الباسوورد</h1>
+    <p>في حاجة صغيرة مستنياكي جوّه...</p>
+    <form id="passwordForm">
+      <div class="passwordWrap">
+        <input id="giftPassword" type="password" autocomplete="off" placeholder="" aria-label="Password">
+        <button type="button" id="togglePassword">◉</button>
+      </div>
+      <button class="unlockBtn" type="submit">open my gift <span>→</span></button>
+      <div id="passwordError">مش دي يا مرومي ♡</div>
+    </form>
+  </div>
+</section>
+
+<div id="countdownOverlay">
+  <div class="countContent">
+    <div class="countNumber" id="countNum">3</div>
+    <div class="birthdayBanner" id="birthdayBanner">
+      <h1 id="birthdayTitle">Happy Birthday</h1>
+      <p id="birthdayName">Maroomy ♡</p>
+    </div>
+  </div>
+</div>
+
+<section id="loading">
+  <canvas id="matrix"></canvas>
+  <div class="vignette"></div>
+  <div class="loader">
+    <div class="overline">PRIVATE BIRTHDAY EXPERIENCE · ZOZAH</div>
+    <div class="name">For <span>Maroomy</span></div>
+    <div class="loading-copy" id="loadingText">something special is loading for you...</div>
+    <div class="progress"><i id="bar"></i></div>
+    <div class="percent" id="percent">0%</div>
+    <button class="enter" id="enter">open your gift ♡</button>
+  </div>
+</section>
+
+<section id="bookWorld" class="hidden">
+  <canvas id="stars"></canvas>
+  <div class="worldGlow"></div>
+  <div class="worldTitle">
+    <small>A LITTLE BOOK · JUST FOR YOU</small>
+    <h1>Happy Birthday, <span>Maroomy</span> ♡</h1>
+  </div>
+
+  <div class="notebookWrap">
+    <div class="notebook" id="notebook">
+      <div class="bookBack"></div>
+      <div class="bookSpine"></div>
+
+      <article class="page" id="page3">
+        <div class="side front counterSpread">
+          <div class="paperTexture"></div>
+          <div class="eyebrow">chapter three · since the first hello</div>
+          <h2>23 / 09 / 2023</h2>
+          <div class="letter">كل الوقت ده عدى… ولسه عندي نفس الأمنية: أشوفك مبسوطة وتحققي كل اللي نفسك فيه.</div>
+          <div class="counterGrid">
+            <div class="timeBox"><b id="days">0</b><span>DAYS</span></div>
+            <div class="timeBox"><b id="hours">00</b><span>HOURS</span></div>
+            <div class="timeBox"><b id="minutes">00</b><span>MINUTES</span></div>
+            <div class="timeBox"><b id="seconds">00</b><span>SECONDS</span></div>
+          </div>
+          <div class="centerScript">and this is only another chapter… ♡</div>
+          
+          <button id="chapterNext" class="chapterNext" type="button">
+            <span>next</span>
+            <span>→</span>
+          </button>
+          <span class="pageNumber">05</span>
+        </div>
+        <div class="side back">
+          <div class="paperTexture"></div>
+          <div class="eyebrow">last little note</div>
+          <h2>For all the next chapters.</h2>
+          <div class="letter" style="text-align:center;margin-top:10px">
+            <div style="font:400 24px var(--hand);color:#b46a82;margin-bottom:8px">one last little note…</div>
+            يارب السنة دي تكون حلوة عليكي، وتحققي كل اللي نفسك فيه،
+            <br>
+            وتدخلي أحلى كلية وتفضلي دايمًا أشطر وأحلى حد.
+            <br><br>
+            وكل سنة وإنتي معايا يا كتكوتة.
+            <div class="signature">— Zozah ♡</div>
+          </div>
+          <span class="pageNumber">06</span>
+        </div>
+      </article>
+
+      <article class="page" id="page2">
+        <div class="side front">
+          <div class="paperTexture"></div>
+          <div class="eyebrow">chapter two · two little snapshots</div>
+          <h2>مرومي ♡</h2>
+          <div class="photoSpread">
+            <figure class="polaroid">
+              <img src="assets/meromy-a.jpeg" alt="Maroomy">
+              <span>favorite moment</span>
+            </figure>
+            <figure class="polaroid">
+              <img src="assets/meromy-b.jpeg" alt="Maroomy">
+              <span>another favorite</span>
+            </figure>
+          </div>
+          <div class="tinyHeart">two photos · one favorite person</div>
+          <span class="pageNumber">03</span>
+        </div>
+        <div class="side back">
+          <div class="paperTexture"></div>
+          <div class="eyebrow">chapter two · then & now</div>
+          <h2>Time Flies…</h2>
+          <div class="letter">
+            بس أكيد لازم نفتكر البدايات كمان.
+            <br>
+            البنت الصغيرة دي كبرت وبقت مرومي اللي أنا عارفها دلوقتي.
+          </div>
+          <div class="photoSpread">
+            <figure class="polaroid">
+              <img src="assets/meromy-child.jpeg" alt="Maroomy child">
+              <span>then ♡</span>
+            </figure>
+            <figure class="polaroid">
+              <img src="assets/meromy-a.jpeg" alt="Maroomy now">
+              <span>now ♡</span>
+            </figure>
+          </div>
+          <div class="tinyHeart">same little soul, bigger dreams.</div>
+          <span class="pageNumber">04</span>
+        </div>
+      </article>
+
+      <article class="page" id="page1">
+        <div class="side front">
+          <div class="paperTexture"></div>
+          <div class="eyebrow">chapter one · from zozah</div>
+          <h2>ازيك يمروم؟</h2>
+          <div class="letter">
+            كل سنة وانتي طيبة يحبيبتي و بخير و معايا دايما يروحي انا
+            <br>
+            و عقبال مليون سنة و انتي كويسة يعيوني انا
+            <br>
+            و يارب تحققي كل اللي نفسك فيه   
+            <br>
+            و تبقي اشطر و احلى حد
+            <br><br>
+            كل سنة و انتي معايا يكتكوتة
+            <br>
+            بحبك ❤
+            <div class="signature">— Zozah</div>
+          </div>
+          <span class="pageNumber">01</span>
+        </div>
+        <div class="side back">
+          <div class="paperTexture"></div>
+          <div class="eyebrow">chapter one · the beginning</div>
+          <h2>23 · 09 · 2023</h2>
+          <div class="letter">
+            أول مرة اتكلمنا كانت يوم <b dir="ltr">23 / 09 / 2023</b>.
+            <br><br>
+            ومن ساعتها، كل يوم بيضيف سطر جديد و نبقى اقرب لبعض , صح ؟ صح
+          </div>
+          <div class="centerScript">and the story kept going ♡</div>
+          <span class="pageNumber">02</span>
+        </div>
+      </article>
+
+      <div class="cover" id="cover">
+        <div class="coverContent">
+          <div class="coverText">
+            <div class="arabic">إلى مرومي، من زوزة</div>
+            <h3>For Maroomy</h3>
+            <div class="script">a little birthday story</div>
+            <div class="coverHeart">♥</div>
+          </div>
+        </div>
+      </div>
+      <button class="openBtn" id="openBook">open your notebook ♡</button>
+    </div>
+  </div>
+
+  <div class="pageNav" id="pageNav">
+    <button id="prevPageBtn" type="button">← previous</button>
+    <button id="nextPageBtn" type="button">next →</button>
+  </div>
+
+  <div id="turnHint">
+    <span class="turnHintArrow">↙</span>
+    <span class="turnHintText">اقلبي الصفحة يا مروم</span>
+    <span class="turnHintArrow right">↘</span>
+  </div>
+</section>
+
+<section id="heartScene">
+  <button id="backToBook" type="button">← back to the notebook</button>
+
+  <div class="mosaicTitle">
+    <div class="ey">one last thing</div>
+    <h2>All my favorite pieces<br>make <span style="color:var(--pink2)">one heart.</span></h2>
+    <p>كل الصور دي هتتجمع واحدة واحدة… لحد ما تعمل قلب ❤️</p>
+  </div>
+  
+  <div class="mosaicStage">
+    <div class="mosaic" id="mosaic"></div>
+  </div>
+  
+  <div class="mosaicCaption" id="mosaicCaption">
+    <h3>Happy Birthday, <span>Maroomy.</span></h3>
+    <p>ومن كل الصور… إنتي دايمًا الصورة اللي في النص.</p>
+    <div class="signature">— Zozah ♡</div>
+  </div>
+</section>
+
+<section id="finalScene">
+  <div class="finalEyebrow">AND THEN… SHE GREW UP</div>
+  <h2 class="finalTitle">من <span>مرومي الصغيرة</span>… إلى مرومي اللي بحبها ❤️</h2>
+  
+  <div class="thenNow">
+    <figure class="finalPhoto childPhoto">
+      <img src="assets/meromy-child.jpeg" alt="Maroomy child">
+      <figcaption>then · little Maroomy</figcaption>
+    </figure>
+
+    <div class="growthArrow">
+      <div class="growthText">كبرتِ ♡</div>
+      <div class="arrowLine"></div>
+      <div class="arrowHead">➜</div>
+    </div>
+
+    <figure class="finalPhoto nowPhoto">
+      <img src="assets/meromy-b.jpeg" alt="Maroomy now">
+      <figcaption>now · my Maroomy</figcaption>
+    </figure>
+  </div>
+  
+  <div class="finalWords">
+    <div class="finalScript">same little heart. bigger dreams. ♡</div>
+    <p>وكل سنة وإنتي طيبة يا مرومي… وعقبال مليون سنة.</p>
+    <div class="seventeen">أحلى حد يتم 17 سنة ❤️</div>
+
+    <button class="restartBtn" id="restartBtn" type="button">إعادة العرض من الأول ↺</button>
+  </div>
+</section>
+
+<script>
+/* FLOATING HEARTS BACKGROUND */
+(function(){
+  const canvas=document.getElementById('floatingHeartsCanvas');
+  const ctx=canvas.getContext('2d');
+  let hearts=[];
+  function resize(){
+    canvas.width=window.innerWidth*devicePixelRatio;
+    canvas.height=window.innerHeight*devicePixelRatio;
+    ctx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  }
+  function createHeart(){
+    return {
+      x:Math.random()*window.innerWidth,
+      y:window.innerHeight+20,
+      size:Math.random()*12+6,
+      speed:Math.random()*1.2+.5,
+      opacity:Math.random()*.5+.2,
+      swing:Math.random()*2,
+      swingSpeed:Math.random()*.02+.01
+    };
+  }
+  for(let i=0;i<25;i++){
+    let h=createHeart();
+    h.y=Math.random()*window.innerHeight;
+    hearts.push(h);
+  }
+  function draw(){
+    ctx.clearRect(0,0,window.innerWidth,window.innerHeight);
+    hearts.forEach(h=>{
+      h.y-=h.speed;
+      h.swing+=h.swingSpeed;
+      let x=h.x+Math.sin(h.swing)*12;
+      ctx.fillStyle=`rgba(255,120,170,${h.opacity})`;
+      ctx.font=`${h.size}px serif`;
+      ctx.fillText('♥',x,h.y);
+      if(h.y<-30){
+        Object.assign(h,createHeart());
+      }
+    });
+    requestAnimationFrame(draw);
+  }
+  resize();
+  window.addEventListener('resize',resize);
+  draw();
+})();
+
+/* PASSWORD & COUNTDOWN OVERLAY */
+(function(){
+  const PASSWORD='maroomy';
+  const gate=document.getElementById('passwordGate');
+  const form=document.getElementById('passwordForm');
+  const input=document.getElementById('giftPassword');
+  const error=document.getElementById('passwordError');
+  const toggle=document.getElementById('togglePassword');
+  const overlay=document.getElementById('countdownOverlay');
+  const countNum=document.getElementById('countNum');
+  const birthdayBanner=document.getElementById('birthdayBanner');
+
+  toggle?.addEventListener('click',()=>{
+    input.type=input.type==='password'?'text':'password';
+  });
+
+  form?.addEventListener('submit',e=>{
+    e.preventDefault();
+    if(input.value.trim().toLowerCase()===PASSWORD.toLowerCase()){
+      error.classList.remove('show');
+      gate.classList.add('unlocked');
+      
+      const song=document.getElementById('giftSong');
+      if(song){
+        song.volume=0.75;
+        song.play().catch(()=>{});
+      }
+
+      overlay.classList.add('active');
+      let count=3;
+      countNum.textContent=count;
+      
+      let timer=setInterval(()=>{
+        count--;
+        if(count>0){
+          gsap.fromTo(countNum,{scale:.2,opacity:0},{scale:1.2,opacity:1,duration:.5,ease:'back.out(1.7)'});
+          countNum.textContent=count;
+        }else if(count===0){
+          clearInterval(timer);
+          countNum.style.display='none';
+          birthdayBanner.classList.add('show');
+
+          gsap.fromTo(birthdayBanner,{scale:.6,opacity:0},{scale:1,opacity:1,duration:.8,ease:'back.out(1.4)'});
+          
+          setTimeout(()=>{
+            gsap.to(overlay,{opacity:0,duration:.7,onComplete:()=>{
+              overlay.classList.remove('active');
+            }});
+          },2200);
+        }
+      },900);
+      gsap.fromTo(countNum,{scale:.2,opacity:0},{scale:1.2,opacity:1,duration:.5,ease:'back.out(1.7)'});
+
+    }else{
+      error.classList.add('show');
+    }
+  });
+})();
+
+/* LOADER */
+const bar=document.getElementById('bar');
+const percent=document.getElementById('percent');
+const enter=document.getElementById('enter');
+
+let progress=0;
+function setProgress(v){
+  progress=Math.min(100,Math.max(0,v));
+  bar.style.width=progress+'%';
+  percent.textContent=Math.round(progress)+'%';
+}
+
+const loadStart=performance.now();
+function loaderLoop(now){
+  const elapsed=now-loadStart;
+  const p=Math.min(100,(elapsed/1800)*100);
+  setProgress(p);
+  if(p<100) requestAnimationFrame(loaderLoop);
+  else {
+    enter.classList.add('ready');
+  }
+}
+requestAnimationFrame(loaderLoop);
+
+function enterExperience(){
+  gsap.to('#loading',{opacity:0,duration:.7,onComplete:()=>{
+    document.getElementById('loading').classList.add('hidden');
+    document.getElementById('bookWorld').classList.remove('hidden');
+    gsap.fromTo('#bookWorld',{opacity:0},{opacity:1,duration:1});
+  }});
+}
+enter.addEventListener('click',enterExperience);
+
+/* STARS BACKGROUND */
+const starsCanvas=document.getElementById('stars'), stx=starsCanvas.getContext('2d');
+let stars=[];
+function resizeStars(){
+  starsCanvas.width=innerWidth*devicePixelRatio;starsCanvas.height=innerHeight*devicePixelRatio;
+  stx.setTransform(devicePixelRatio,0,0,devicePixelRatio,0,0);
+  stars=Array.from({length:120},()=>({x:Math.random()*innerWidth,y:Math.random()*innerHeight,r:Math.random()*1.2+.2,a:Math.random()*.8+.1,v:Math.random()*.008+.002}));
+}
+function starsLoop(){
+  stx.clearRect(0,0,innerWidth,innerHeight);
+  for(const p of stars){
+    p.a+=p.v;if(p.a>1||p.a<.1)p.v*=-1;
+    stx.fillStyle=`rgba(255,255,255,${p.a})`;stx.beginPath();stx.arc(p.x,p.y,p.r,0,Math.PI*2);stx.fill();
+  }
+  requestAnimationFrame(starsLoop);
+}
+resizeStars();addEventListener('resize',resizeStars);starsLoop();
+
+/* NOTEBOOK FLIP ENGINE */
+const cover = document.getElementById('cover');
+const pages = [
+  document.getElementById('page1'),
+  document.getElementById('page2'),
+  document.getElementById('page3')
+];
+const prevPageBtn = document.getElementById('prevPageBtn');
+const nextPageBtn = document.getElementById('nextPageBtn');
+const turnHint = document.getElementById('turnHint');
+
+let opened = false;
+let current = 0;
+let pageBusy = false;
+
+function applyStackOrder() {
+  if (!opened) {
+    cover.style.zIndex = 100;
+    cover.style.transform = 'rotateY(0deg)';
+    pages.forEach((p, i) => {
+      p.style.zIndex = (pages.length - i) * 10;
+      p.style.transform = 'rotateY(0deg)';
+    });
+    return;
+  }
+
+  cover.style.zIndex = 1;
+  cover.style.transform = 'rotateY(-180deg)';
+
+  pages.forEach((p, i) => {
+    if (i < current) {
+      p.style.zIndex = (i + 1) * 10;
+      p.style.transform = 'rotateY(-180deg)';
+    } else {
+      p.style.zIndex = (pages.length - i) * 10;
+      p.style.transform = 'rotateY(0deg)';
+    }
+  });
+}
+
+function updatePageButtons() {
+  if (!prevPageBtn || !nextPageBtn) return;
+  prevPageBtn.disabled = !opened || current === 0;
+  nextPageBtn.disabled = !opened || current >= pages.length - 1;
+  prevPageBtn.style.visibility = (!opened || current === 0) ? 'hidden' : 'visible';
+  nextPageBtn.style.visibility = (!opened || current >= pages.length - 1) ? 'hidden' : 'visible';
+  if (turnHint) turnHint.style.opacity = (!opened || current >= pages.length - 1) ? '0' : '1';
+}
+
+function openBook() {
+  if (opened) return;
+  opened = true;
+  cover.style.zIndex = 150;
+  cover.style.transform = 'rotateY(-180deg)';
+  
+  const openBtn = document.getElementById('openBook');
+  if (openBtn) {
+    openBtn.style.opacity = '0';
+    openBtn.style.pointerEvents = 'none';
+  }
+
+  setTimeout(() => {
+    applyStackOrder();
+    updatePageButtons();
+  }, 800);
+}
+document.getElementById('openBook').onclick = openBook;
+
+function flipForward() {
+  if (!opened) { openBook(); return; }
+  if (pageBusy || current >= pages.length) return;
+  pageBusy = true;
+
+  const page = pages[current];
+  page.style.zIndex = 200;
+  page.style.transform = 'rotateY(-180deg)';
+  current++;
+
+  setTimeout(() => {
+    applyStackOrder();
+    pageBusy = false;
+    updatePageButtons();
+  }, 800);
+}
+
+function flipBackward() {
+  if (pageBusy || current <= 0) return;
+  pageBusy = true;
+
+  current--;
+  const page = pages[current];
+  page.style.zIndex = 200;
+  page.style.transform = 'rotateY(0deg)';
+
+  setTimeout(() => {
+    applyStackOrder();
+    pageBusy = false;
+    updatePageButtons();
+  }, 800);
+}
+
+prevPageBtn?.addEventListener('click', flipBackward);
+nextPageBtn?.addEventListener('click', flipForward);
+
+/* Touch & Click Handlers */
+let touchStartX = null, touchStartY = null;
+const notebookEl = document.getElementById('notebook');
+notebookEl.addEventListener('touchstart', e => {
+  if (pageBusy || e.touches.length !== 1) return;
+  touchStartX = e.touches[0].clientX; touchStartY = e.touches[0].clientY;
+}, { passive: true });
+
+notebookEl.addEventListener('touchend', e => {
+  if (touchStartX === null || pageBusy) return;
+  const dx = e.changedTouches[0].clientX - touchStartX;
+  const dy = e.changedTouches[0].clientY - touchStartY;
+  touchStartX = null;
+  if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy) * 1.2) {
+    if (dx < 0) flipForward(); else flipBackward();
+  }
+}, { passive: true });
+
+notebookEl.addEventListener('click', e => {
+  if (pageBusy || !opened || e.target.closest('button')) return;
+  const rect = notebookEl.getBoundingClientRect();
+  const x = e.clientX - rect.left;
+  if (x > rect.width / 2) { flipForward(); } else { flipBackward(); }
+});
+
+// Initialize stack order
+applyStackOrder();
+
+/* LIVE COUNTER */
+const start=new Date('2023-09-23T00:00:00');
+function updateTimer(){
+  let total=Math.max(0,Math.floor((Date.now()-start.getTime())/1000));
+  const d=Math.floor(total/86400);total%=86400;
+  const h=Math.floor(total/3600);total%=3600;
+  const m=Math.floor(total/60);const s=total%60;
+  document.getElementById('days').textContent=d.toLocaleString('en-US');
+  document.getElementById('hours').textContent=String(h).padStart(2,'0');
+  document.getElementById('minutes').textContent=String(m).padStart(2,'0');
+  document.getElementById('seconds').textContent=String(s).padStart(2,'0');
+}
+updateTimer();setInterval(updateTimer,1000);
+
+/* CHAPTER NEXT BUTTON */
+document.getElementById('chapterNext')?.addEventListener('click',e=>{
+  e.stopPropagation();
+  if(pageBusy)return;
+  gsap.to('#bookWorld',{opacity:0,duration:.75,onComplete:()=>{
+    document.getElementById('bookWorld').classList.add('hidden');
+    showHeartScene();
+  }});
+});
+
+/* HEART MOSAIC SCENE */
+const heartScene=document.getElementById('heartScene');
+const mosaic=document.getElementById('mosaic');
+
+function generatePerfectHeartPoints(totalPoints, width, height){
+  const points=[];
+  const scaleX=width/38;
+  const scaleY=height/38;
+
+  for(let i=0;i<totalPoints;i++){
+    const t=(i/totalPoints)*Math.PI*2;
+    const x = 16 * Math.pow(Math.sin(t), 3);
+    const y = -(13 * Math.cos(t) - 5 * Math.cos(2*t) - 2 * Math.cos(3*t) - Math.cos(4*t));
+    points.push({ x: (x * scaleX), y: (y * scaleY) });
+  }
+  return points;
+}
+
+function makeHeart(){
+  mosaic.innerHTML='';
+  const w=mosaic.clientWidth, h=mosaic.clientHeight;
+  const totalTiles = window.innerWidth < 700 ? 48 : 72;
+  const points=generatePerfectHeartPoints(totalTiles, w, h);
+  const frag=document.createDocumentFragment();
+
+  points.forEach((p,i)=>{
+    const tile=document.createElement('div');
+    tile.className='tile';
+    const img=document.createElement('img');
+    img.src=i%2===0?'assets/meromy-a.jpeg':'assets/meromy-b.jpeg';
+    tile.appendChild(img);
+
+    const startX=(Math.random()-.5)*w*2;
+    const startY=(Math.random()-.5)*h*2;
+    tile.dataset.x=p.x; tile.dataset.y=p.y;
+    gsap.set(tile,{x:startX,y:startY,rotation:(Math.random()-.5)*60,scale:.1,opacity:0});
+    frag.appendChild(tile);
+  });
+  mosaic.appendChild(frag);
+}
+
+function showHeartScene(){
+  heartScene.style.display='block';
+  gsap.fromTo(heartScene,{opacity:0},{opacity:1,duration:1});
+  runMosaic();
+}
+
+function runMosaic(){
+  makeHeart();
+  const tiles=[...document.querySelectorAll('.tile')];
+  const tl=gsap.timeline();
+
+  tl.fromTo('.mosaicTitle',{y:-15,opacity:0},{y:0,opacity:1,duration:.8});
+  tl.to(tiles,{
+    x:i=>Number(tiles[i].dataset.x),
+    y:i=>Number(tiles[i].dataset.y),
+    rotation:0, scale:1, opacity:1, duration:1.2,
+    stagger:{each:.018,from:'random'}, ease:'power2.out'
+  },"+=.1");
+  tl.to('#mosaicCaption',{opacity:1,y:0,duration:.8},"+=.2");
+  tl.to({},{duration:2.5});
+  tl.call(showFinalScene);
+}
+
+document.getElementById('backToBook')?.addEventListener('click',()=>{
+  heartScene.style.display='none';
+  document.getElementById('finalScene').style.display='none';
+  document.getElementById('bookWorld').classList.remove('hidden');
+  gsap.fromTo('#bookWorld',{opacity:0},{opacity:1,duration:.7});
+});
+
+/* FINAL SCENE */
+function showFinalScene(){
+  const fs=document.getElementById('finalScene');
+  gsap.to(heartScene,{opacity:0,duration:.8,onComplete:()=>{
+    heartScene.style.display='none';
+    fs.style.display='grid';
+    gsap.fromTo(fs,{opacity:0},{opacity:1,duration:.8});
+    gsap.fromTo('.finalEyebrow',{y:-10,opacity:0},{y:0,opacity:1,duration:.7});
+    gsap.fromTo('.finalTitle',{y:12,opacity:0},{y:0,opacity:1,duration:.8,delay:.1});
+    gsap.fromTo('.childPhoto',{x:-30,rotation:-5,opacity:0},{x:0,rotation:-2.5,opacity:1,duration:.9,delay:.2,ease:'power3.out'});
+    gsap.fromTo('.nowPhoto',{x:30,rotation:5,opacity:0},{x:0,rotation:2.5,opacity:1,duration:.9,delay:.4,ease:'power3.out'});
+    gsap.fromTo('.growthArrow',{scale:.3,opacity:0},{scale:1,opacity:1,duration:.8,delay:.8,ease:'back.out(1.5)'});
+    gsap.fromTo('.finalWords',{y:15,opacity:0},{y:0,opacity:1,duration:.9,delay:1.1});
+  }});
+}
+
+/* RESTART BUTTON */
+document.getElementById('restartBtn')?.addEventListener('click',()=>{
+  document.getElementById('finalScene').style.display='none';
+  document.getElementById('heartScene').style.display='none';
+  
+  opened=false; current=0;
+  applyStackOrder();
+  
+  const openBtn = document.getElementById('openBook');
+  if (openBtn) {
+    openBtn.style.opacity = '1';
+    openBtn.style.pointerEvents = 'auto';
+  }
+
+  document.getElementById('bookWorld').classList.remove('hidden');
+  gsap.fromTo('#bookWorld',{opacity:0},{opacity:1,duration:1});
+  updatePageButtons();
+});
+</script>
+</body>
+</html>
